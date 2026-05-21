@@ -31,12 +31,33 @@ async function run() {
     const database = client.db("petAdoptionDB");
     const petsCollection = database.collection("pets");
               
+app.get("/pets", async (req, res) => {
+  const search = req.query.search || "";
+  const species = req.query.species;
 
-       app.get("/pets", async (req, res) => {
-      const result = await petsCollection.find().toArray();
+  let query = {};
 
-      res.send(result);
-    });
+  // search by pet name
+  if (search) {
+    query.name = {
+      $regex: search,
+      $options: "i",
+    };
+  }
+
+  // filter by species
+  if (species) {
+    const speciesArray = species.split(",");
+
+    query.species = {
+      $in: speciesArray,
+    };
+  }
+
+  const result = await petsCollection.find(query).toArray();
+
+  res.send(result);
+});
 
     app.post("/pets", async (req, res) => {
   const newPet = req.body;
