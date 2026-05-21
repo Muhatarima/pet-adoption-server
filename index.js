@@ -126,8 +126,15 @@ app.get("/adoptions", async (req, res) => {
 
 
 
-      app.post("/adoptions", async (req, res) => {
+app.post("/adoptions", async (req, res) => {
   const adoptionData = req.body;
+
+  // prevent owner from adopting own pet
+  if (adoptionData.ownerEmail === adoptionData.userEmail) {
+    return res.status(400).send({
+      message: "You cannot adopt your own pet",
+    });
+  }
 
   adoptionData.status = "pending";
 
