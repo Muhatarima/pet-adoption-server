@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion , ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -37,6 +37,24 @@ async function run() {
 
       res.send(result);
     });
+
+    app.post("/pets", async (req, res) => {
+  const newPet = req.body;
+
+  const result = await petsCollection.insertOne(newPet);
+
+  res.send(result);
+});
+
+app.get("/pets/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const query = { _id: new ObjectId(id) };
+
+  const result = await petsCollection.findOne(query);
+
+  res.send(result);
+});
 
     console.log("MongoDB connected successfully");
   } finally {
