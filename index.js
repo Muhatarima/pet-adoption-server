@@ -136,6 +136,15 @@ app.get("/adoptions", async (req, res) => {
 
   res.send(result);
 });
+app.delete("/adoptions/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const query = { _id: new ObjectId(id) };
+
+  const result = await adoptionCollection.deleteOne(query);
+
+  res.send(result);
+});
 
     console.log("MongoDB connected successfully");
   } finally {
