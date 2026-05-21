@@ -28,6 +28,16 @@ async function run() {
   try {
     await client.connect();
 
+    const database = client.db("petAdoptionDB");
+    const petsCollection = database.collection("pets");
+              
+
+       app.get("/pets", async (req, res) => {
+      const result = await petsCollection.find().toArray();
+
+      res.send(result);
+    });
+
     console.log("MongoDB connected successfully");
   } finally {
   }
