@@ -30,6 +30,8 @@ async function run() {
 
     const database = client.db("petAdoptionDB");
     const petsCollection = database.collection("pets");
+      const adoptionCollection = database.collection("adoptionRequests");
+
               
 app.get("/pets", async (req, res) => {
   const search = req.query.search || "";
@@ -37,7 +39,6 @@ app.get("/pets", async (req, res) => {
 
   let query = {};
 
-  // search by pet name
   if (search) {
     query.name = {
       $regex: search,
@@ -45,7 +46,6 @@ app.get("/pets", async (req, res) => {
     };
   }
 
-  // filter by species
   if (species) {
     const speciesArray = species.split(",");
 
@@ -99,6 +99,31 @@ app.put("/pets/:id", async (req, res) => {
   const query = { _id: new ObjectId(id) };
 
   const result = await petsCollection.deleteOne(query);
+
+  res.send(result);
+});
+app.post("/adoptions", async (req, res) => {
+  const adoptionData = req.body;
+
+  adoptionData.status = "pending";
+
+  adoptionData.requestDate = new Date();
+
+  const result = await adoptionCollection.insertOne(adoptionData);
+
+  res.send(result);
+});
+
+
+
+      app.post("/adoptions", async (req, res) => {
+  const adoptionData = req.body;
+
+  adoptionData.status = "pending";
+
+  adoptionData.requestDate = new Date();
+
+  const result = await adoptionCollection.insertOne(adoptionData);
 
   res.send(result);
 });
