@@ -159,7 +159,6 @@ app.get("/adoptions/pet/:petId", async (req, res) => {
   const id = req.params.id;
   const { status, petId } = req.body;
 
-  
   const filter = { _id: new ObjectId(id) };
 
   const updateDoc = {
@@ -168,22 +167,28 @@ app.get("/adoptions/pet/:petId", async (req, res) => {
     },
   };
 
-  const adoptionResult = await adoptionCollection.updateOne(
-    filter,
-    updateDoc
-  );
+  const adoptionResult = await adoptionCollection.updateOne(filter, updateDoc);
 
- 
   if (status === "approved") {
     const petQuery = { _id: new ObjectId(petId) };
 
-    const petUpdateDoc = {
+    await petsCollection.updateOne(petQuery, {
       $set: {
         adoptionStatus: "adopted",
       },
-    };
+    });
 
-    await petsCollection.updateOne(petQuery, petUpdateDoc);
+    await adoptionCollection.updateMany(
+      {
+        petId: petId,
+        _id: { $ne: new ObjectId(id) },
+      },
+      {
+        $set: {
+          status: "rejected",
+        },
+      }
+    );
   }
 
   res.send(adoptionResult);
