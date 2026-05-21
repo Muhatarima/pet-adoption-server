@@ -56,6 +56,22 @@ app.get("/pets/:id", async (req, res) => {
   res.send(result);
 });
 
+
+app.put("/pets/:id", async (req, res) => {
+  const id = req.params.id;
+  const updatedPet = req.body;
+
+  const filter = { _id: new ObjectId(id) };
+
+  const updateDoc = {
+    $set: updatedPet,
+  };
+
+  const result = await petsCollection.updateOne(filter, updateDoc);
+
+  res.send(result);
+});
+
     console.log("MongoDB connected successfully");
   } finally {
   }
