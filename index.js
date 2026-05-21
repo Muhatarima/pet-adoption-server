@@ -72,6 +72,16 @@ app.put("/pets/:id", async (req, res) => {
   res.send(result);
 });
 
+        app.delete("/pets/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const query = { _id: new ObjectId(id) };
+
+  const result = await petsCollection.deleteOne(query);
+
+  res.send(result);
+});
+
     console.log("MongoDB connected successfully");
   } finally {
   }
