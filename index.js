@@ -61,6 +61,7 @@ app.get("/pets", async (req, res) => {
 
     app.post("/pets", async (req, res) => {
   const newPet = req.body;
+  newPet.adoptionStatus = "available";
 
   const result = await petsCollection.insertOne(newPet);
 
@@ -153,6 +154,39 @@ app.get("/adoptions/pet/:petId", async (req, res) => {
   const result = await adoptionCollection.find(query).toArray();
 
   res.send(result);
+});
+   app.patch("/adoptions/:id", async (req, res) => {
+  const id = req.params.id;
+  const { status, petId } = req.body;
+
+  
+  const filter = { _id: new ObjectId(id) };
+
+  const updateDoc = {
+    $set: {
+      status: status,
+    },
+  };
+
+  const adoptionResult = await adoptionCollection.updateOne(
+    filter,
+    updateDoc
+  );
+
+ 
+  if (status === "approved") {
+    const petQuery = { _id: new ObjectId(petId) };
+
+    const petUpdateDoc = {
+      $set: {
+        adoptionStatus: "adopted",
+      },
+    };
+
+    await petsCollection.updateOne(petQuery, petUpdateDoc);
+  }
+
+  res.send(adoptionResult);
 });
 
     console.log("MongoDB connected successfully");
