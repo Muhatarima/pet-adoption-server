@@ -113,6 +113,15 @@ app.post("/adoptions", async (req, res) => {
 
   res.send(result);
 });
+app.get("/adoptions", async (req, res) => {
+  const email = req.query.email;
+
+  const query = { userEmail: email };
+
+  const result = await adoptionCollection.find(query).toArray();
+
+  res.send(result);
+});
 
 
 
