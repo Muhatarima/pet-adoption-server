@@ -25,6 +25,35 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("Pet Adoption Server Running");
 });
+
+
+       
+    const verifyToken = (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).send({
+      message: "unauthorized access",
+    });
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({
+        message: "unauthorized access",
+      });
+    }
+
+    req.decoded = decoded;
+
+    next();
+  });
+};
+
+
+
+
+
 async function run() {
   try {
     await client.connect();
@@ -200,6 +229,20 @@ app.get("/adoptions/pet/:petId", async (req, res) => {
   }
 
   res.send(adoptionResult);
+});
+app.post("/jwt", async (req, res) => {
+  const user = req.body;
+
+  const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
+
+  res
+    .cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    })
+    .send({ success: true });
 });
 
     console.log("MongoDB connected successfully");
