@@ -109,9 +109,20 @@ app.get("/pets/:id", async (req, res) => {
 });
 
 
-app.put("/pets/:id", async (req, res) => {
+app.put("/pets/:id", verifyToken, async (req, res) => {
   const id = req.params.id;
   const updatedPet = req.body;
+
+  const pet = await petsCollection.findOne({
+    _id: new ObjectId(id),
+  });
+
+  
+  if (pet.ownerEmail !== req.decoded.email) {
+    return res.status(403).send({
+      message: "forbidden access",
+    });
+  }
 
   const filter = { _id: new ObjectId(id) };
 
@@ -124,8 +135,19 @@ app.put("/pets/:id", async (req, res) => {
   res.send(result);
 });
 
-        app.delete("/pets/:id", async (req, res) => {
+      app.delete("/pets/:id", verifyToken, async (req, res) => {
   const id = req.params.id;
+
+  const pet = await petsCollection.findOne({
+    _id: new ObjectId(id),
+  });
+
+  // owner check
+  if (pet.ownerEmail !== req.decoded.email) {
+    return res.status(403).send({
+      message: "forbidden access",
+    });
+  }
 
   const query = { _id: new ObjectId(id) };
 
@@ -249,6 +271,22 @@ app.post("/jwt", async (req, res) => {
       secure: false,
     })
     .send({ success: true });
+});
+
+  app.get("/my-pets", verifyToken, async (req, res) => {
+  const email = req.query.email;
+
+  if (req.decoded.email !== email) {
+    return res.status(403).send({
+      message: "forbidden access",
+    });
+  }
+
+  const query = { ownerEmail: email };
+
+  const result = await petsCollection.find(query).toArray();
+
+  res.send(result);
 });
 app.post("/logout", async (req, res) => {
   res
