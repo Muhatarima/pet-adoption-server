@@ -144,8 +144,14 @@ app.post("/adoptions", async (req, res) => {
 
   res.send(result);
 });
-app.get("/adoptions", async (req, res) => {
+app.get("/adoptions", verifyToken, async (req, res) => {
   const email = req.query.email;
+
+  if (req.decoded.email !== email) {
+    return res.status(403).send({
+      message: "forbidden access",
+    });
+  }
 
   const query = { userEmail: email };
 
@@ -239,6 +245,14 @@ app.post("/jwt", async (req, res) => {
 
   res
     .cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+    })
+    .send({ success: true });
+});
+app.post("/logout", async (req, res) => {
+  res
+    .clearCookie("token", {
       httpOnly: true,
       secure: false,
     })
