@@ -3,6 +3,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { MongoClient, ServerApiVersion , ObjectId } = require("mongodb");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -129,7 +130,7 @@ app.get("/adoptions", async (req, res) => {
 app.post("/adoptions", async (req, res) => {
   const adoptionData = req.body;
 
-  // prevent owner from adopting own pet
+
   if (adoptionData.ownerEmail === adoptionData.userEmail) {
     return res.status(400).send({
       message: "You cannot adopt your own pet",
